@@ -17,6 +17,7 @@ from collections import MutableMapping
 from functools import wraps
 from pkg_resources import resource_string
 import jsonschema
+from typing import Dict
 
 from .defaults import defaults
 from .pathfilter import PathFilter
@@ -37,18 +38,18 @@ class ZincModel:
 
     _schema = None
 
-    def __init__(self, mutable=True):
+    def __init__(self, mutable: bool = True):
         self._mutable = mutable
 
     @property
-    def is_mutable(self):
+    def is_mutable(self) -> bool:
         return self._mutable
 
     def to_bytes(self) -> bytes:
         return json.dumps(self.to_dict()).encode('utf8')
 
     @classmethod
-    def from_dict(cls, d, mutable=True):
+    def from_dict(cls, d: Dict, mutable: bool = True):
         raise NotImplementedError()
 
     @classmethod
@@ -64,7 +65,7 @@ class ZincModel:
         return cls._schema
 
     @classmethod
-    def from_bytes(cls, b, mutable=True):
+    def from_bytes(cls, b: str, mutable: bool = True):
         d = json.loads(b)
         schema = cls.schema()
         if schema is not None:
@@ -72,11 +73,11 @@ class ZincModel:
         return cls.from_dict(d, mutable=mutable)
 
     @classmethod
-    def from_path(cls, p, mutable=True):
+    def from_path(cls, p: str, mutable: bool = True):
         with open(p, 'r') as f:
             return cls.from_bytes(f.read(), mutable=mutable)
 
-    def write(self, path):
+    def write(self, path: str) -> None:
         with open(path, 'wb') as f:
             f.write(self.to_bytes())
 
@@ -85,8 +86,8 @@ class ZincModel:
         o = self.__class__.from_dict(d, mutable=mutable)
         return o
 
-    def to_dict(self):
-        pass
+    def to_dict(self) -> Dict:
+        raise NotImplementedError()
 
 
 # ZincIndex
@@ -99,7 +100,7 @@ class ZincIndex(ZincModel):
         self._id = id
         self._bundle_info_by_name = dict()
 
-    def to_dict(self):
+    def to_dict(self) -> Dict:
         if self.id is None:
             raise ValueError("catalog id is None")  # TODO: better exception?
         return {
@@ -109,15 +110,15 @@ class ZincIndex(ZincModel):
         }
 
     @property
-    def id(self):
+    def id(self) -> str:
         return self._id
 
     @property
-    def format(self):
+    def format(self) -> str:
         return self._format
 
     @classmethod
-    def from_dict(cls, d, mutable=True):
+    def from_dict(cls, d: Dict, mutable: bool = True):
         # TODO: handle format appropriately
         index = cls(id=d['id'], mutable=mutable)
         index._format = d['format']
@@ -503,7 +504,7 @@ class ZincCatalogConfig(ZincModel):
         self.gzip_threshhold = 0.85
 
     @classmethod
-    def from_dict(cls, d, mutable=True):
+    def from_dict(cls, d: Dict, mutable: bool = True):
         config = ZincCatalogConfig()
         if d.get('gzip_threshhold'):
             config.gzip_threshhold = d.get('gzip_threshhold')
