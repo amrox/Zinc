@@ -44,7 +44,7 @@ class ZincModel:
     def is_mutable(self):
         return self._mutable
 
-    def to_bytes(self) -> bytearray:
+    def to_bytes(self) -> bytes:
         return json.dumps(self.to_dict()).encode('utf8')
 
     @classmethod
@@ -84,6 +84,9 @@ class ZincModel:
         d = self.to_dict()
         o = self.__class__.from_dict(d, mutable=mutable)
         return o
+
+    def to_dict(self):
+        pass
 
 
 # ZincIndex
@@ -375,26 +378,26 @@ class ZincManifest(ZincModel):
         return manifest
 
     @property
-    def format(self):
+    def format(self) -> str:
         return self._format
 
     @property
-    def catalog_id(self):
+    def catalog_id(self) -> str:
         return self._catalog_id
 
     @property
-    def version(self):
+    def version(self) -> int:
         return self._version
 
     @property
-    def bundle_name(self):
+    def bundle_name(self) -> str:
         return self._bundle_name
 
     @property
     def files(self):
         return self._files
 
-    @files.setter
+    @files.setter  # type: ignore
     @mutable_only
     def files(self, val):
         if isinstance(val, dict):
