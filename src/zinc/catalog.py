@@ -51,19 +51,19 @@ class ZincCatalogPathHelper(object):
     def path_for_index(self):
         return defaults['catalog_index_name']
 
-    def manifest_name(self, bundle_name, version):
+    def manifest_name(self, bundle_name: str, version: int):
         return "%s-%d.json" % (bundle_name, version)
 
-    def path_for_manifest_for_bundle_version(self, bundle_name, version):
+    def path_for_manifest_for_bundle_version(self, bundle_name: str, version: int):
         manifest_filename = self.manifest_name(bundle_name, version)
         manifest_path = os.path.join(self.manifests_dir, manifest_filename)
         return manifest_path
 
-    def path_for_manifest(self, manifest):
+    def path_for_manifest(self, manifest: ZincManifest):
         return self.path_for_manifest_for_bundle_version(
             manifest.bundle_name, manifest.version)
 
-    def path_for_file_with_sha(self, sha, ext=None, format=None):
+    def path_for_file_with_sha(self, sha: str, ext: str = None, format=None):
 
         if ext is not None and format is not None:
             raise Exception("Should specify either `ext` or `format`, not both.")
@@ -76,19 +76,19 @@ class ZincCatalogPathHelper(object):
             file = file + '.' + ext
         return os.path.join(subdir, file)
 
-    def archive_name(self, bundle_name, version, flavor=None):
+    def archive_name(self, bundle_name: str, version: int, flavor: str = None):
         if flavor is None:
             return "%s-%d.tar" % (bundle_name, version)
         else:
             return "%s-%d~%s.tar" % (bundle_name, version, flavor)
 
     def path_for_archive_for_bundle_version(
-            self, bundle_name, version, flavor=None):
+            self, bundle_name: str, version: int, flavor: str = None):
         archive_filename = self.archive_name(bundle_name, version, flavor=flavor)
         archive_path = os.path.join(self.archives_dir, archive_filename)
         return archive_path
 
-    def path_for_flavorspec_name(self, flavorspec_name):
+    def path_for_flavorspec_name(self, flavorspec_name: str):
         filename = '%s.json' % flavorspec_name
         return os.path.join(self.config_flavorspec_dir, filename)
 
@@ -481,28 +481,28 @@ class ZincCatalog(ZincAbstractCatalog):
         subpath = self.path_helper.config_flavorspec_dir
         return [os.path.splitext(p)[0] for p in self._storage.list(prefix=subpath)]
 
-    def get_flavorspec(self, flavorspec_name):
+    def get_flavorspec(self, flavorspec_name: str):
         subpath = self._ph.path_for_flavorspec_name(flavorspec_name)
         bytes = self._read(subpath)
         return ZincFlavorSpec.from_bytes(bytes)
 
-    def update_flavorspec_from_json_string(self, name, json_string):
+    def update_flavorspec_from_json_string(self, name: str, json_string: str):
         subpath = self._ph.path_for_flavorspec_name(name)
         self._write(subpath, json_string.encode('utf8'), raw=True, gzip=False)
 
-    def update_flavorspec_from_path(self, src_path, name=None):
+    def update_flavorspec_from_path(self, src_path: str, name: str = None):
         with open(src_path, 'r') as src_file:
             json_string = src_file.read()
         if name is None:
             name = os.path.splitext(os.path.basename(src_path))[0]
         self.update_flavorspec_from_json_string(name, json_string)
 
-    def delete_flavorspec(self, name):
+    def delete_flavorspec(self, name: str):
         subpath = self._ph.path_for_flavorspec_name(name)
         self._storage.delete(subpath)
 
     @_ensure_index_lock
-    def clean(self, dry_run=False):
+    def clean(self, dry_run: bool = False):
         verb = 'Would remove' if dry_run else 'Removing'
 
         bundle_descriptors = self.bundle_descriptors()
