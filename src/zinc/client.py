@@ -1,5 +1,4 @@
 from __future__ import absolute_import
-
 import os
 import logging
 import tarfile
@@ -494,6 +493,7 @@ def get_service(service_url=None, coordinator_info=None, storage_info=None, **kw
         coord = coord_class(**coordinator_info)
 
         storage_class = storage_for_url(storage_info['url'])
+
         storage = storage_class(**storage_info)
 
         from zinc.services import CustomServiceConsumer

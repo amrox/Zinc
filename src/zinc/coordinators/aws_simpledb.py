@@ -3,6 +3,7 @@ import time
 import uuid
 import logging
 from threading import Timer
+from typing import Dict, Optional
 
 import boto.sdb
 from boto.exception import SDBResponseError
@@ -16,7 +17,9 @@ LOCK_EXPIRES = 'lock_expiry'
 
 
 class Lock(object):
-    def __init__(self, sdb_domain, key, expires=None, timeout=None):
+    def __init__(self, sdb_domain: str, key: str,
+                 expires: Optional[int] = None,
+                 timeout: Optional[int] = None):
 
         self._timeout = timeout or 10
         self._expires = expires or 300
@@ -52,13 +55,13 @@ class Lock(object):
         self._update_lock()
         self._schedule_timer()
 
-    def _get_lock_attrs(self):
+    def _get_lock_attrs(self) -> Dict:
         return {
             LOCK_TOKEN: self._token,
             LOCK_EXPIRES: time.time() + self._expires
         }
 
-    def is_locked(self):
+    def is_locked(self) -> bool:
         return self._is_locked
 
     def acquire(self):
@@ -125,7 +128,9 @@ class Lock(object):
 
 class SimpleDBCatalogCoordinator(CatalogCoordinator):
 
-    def __init__(self, url=None, aws_key=None, aws_secret=None,
+    def __init__(self, url: Optional[str] = None,
+                 aws_key: Optional[str] = None,
+                 aws_secret: Optional[str] = None,
                  sdb_connection=None, **kwargs):
 
         super(SimpleDBCatalogCoordinator, self).__init__(**kwargs)
@@ -143,11 +148,12 @@ class SimpleDBCatalogCoordinator(CatalogCoordinator):
                                                 aws_secret_access_key=aws_secret)
         self._domain = self._conn.create_domain(sdb_domain)
 
-    def get_index_lock(self, domain=None, timeout=None, **kwargs):
+    def get_index_lock(self, domain: Optional[str] = None,
+                       timeout: Optional[int] = None, **kwargs) -> Lock:
         assert domain
         return Lock(self._domain, domain, timeout=timeout)
 
     @classmethod
-    def valid_url(cls, url):
+    def valid_url(cls, url: str) -> bool:
         urlcomps = urlparse(url)
         return urlcomps.scheme == 'sdb' and urlcomps.netloc in [r.name for r in boto.sdb.regions()]

@@ -57,7 +57,7 @@ class StorageBackend(object):
         raise NotImplementedError()
 
 
-def storage_for_url(url):
+def storage_for_url(url: str):
     from .filesystem import FilesystemStorageBackend
     from .aws import S3StorageBackend
 

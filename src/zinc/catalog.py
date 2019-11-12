@@ -424,10 +424,13 @@ class ZincCatalog(ZincAbstractCatalog):
 
     def import_path(self, src_path: str):
 
+        log.info("Importing: %s" % (src_path))
+
         sha = utils.sha1_for_path(src_path)
 
         file_info = self._get_file_info(sha)
         if file_info is not None:
+            log.info("Already imported: %s" % (src_path))
             return file_info
 
         # gzip the file first, and see if it passes the compression threshhold

@@ -29,11 +29,13 @@ def coordinator_for_url(url):
     # TODO: better way to search for coordinators
     from .filesystem import FilesystemCatalogCoordinator
     from .redis import RedisCatalogCoordinator
-    from .aws import SimpleDBCatalogCoordinator
+    from .aws_simpledb import SimpleDBCatalogCoordinator
+    from .aws_dynamodb import DynamoDBCatalogCoordinator
 
     coord_classes = (FilesystemCatalogCoordinator,
                      RedisCatalogCoordinator,
-                     SimpleDBCatalogCoordinator)
+                     SimpleDBCatalogCoordinator,
+                     DynamoDBCatalogCoordinator)
 
     for coord_class in coord_classes:
         if coord_class.valid_url(url):
